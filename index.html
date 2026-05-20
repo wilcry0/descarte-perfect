@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>DescartsPerfect PRO ULTRA MAX</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+    --bg:#081018;
+    --panel:#101826;
+    --card:#162132;
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --green:#10b981;
+    --green2:#059669;
+    --blue:#3b82f6;
+    --purple:#8b5cf6;
+    --yellow:#f59e0b;
+    --red:#ef4444;
+    --pink:#ec4899;
+    --border:rgba(255,255,255,.08);
+    --radius:20px;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+.light{
+    --bg:#f1f5f9;
+    --panel:#ffffff;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#475569;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:
+    radial-gradient(circle at top left,#0f766e 0%,transparent 25%),
+    radial-gradient(circle at bottom right,#1d4ed8 0%,transparent 25%),
+    var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    padding:30px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:30px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.logo-icon{
+    width:70px;
+    height:70px;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg, var(--green), var(--blue));
+    font-size:35px;
+}
+
+.layout{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:24px;
+}
+
+@media(max-width:1000px){
+    .layout{
+        grid-template-columns:1fr;
+    }
+}
+
+.panel{
+    background:rgba(16,24,38,.75);
+    border:1px solid var(--border);
+    backdrop-filter:blur(12px);
+    border-radius:20px;
+    padding:22px;
+    box-shadow:var(--shadow);
+}
+
+.panel + .panel{
+    margin-top:24px;
+}
+
+h2{
+    margin-bottom:18px;
+}
+
+.form-group{
+    margin-bottom:16px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    color:var(--muted);
+}
+
+input, select{
+    width:100%;
+    padding:14px;
+    border-radius:14px;
+    border:1px solid var(--border);
+    background:#0b1320;
+    color:white;
+    outline:none;
+}
+
+.light input, .light select{
+    background:#e2e8f0;
+    color:#0f172a;
+}
+
+button{
+    width:100%;
+    border:none;
+    padding:14px;
+    border-radius:14px;
+    cursor:pointer;
+    color:white;
+    font-weight:700;
+    transition:.2s;
+    background:linear-gradient(135deg, var(--green), var(--green2));
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.btn-blue{
+    background:linear-gradient(135deg, var(--blue), #2563eb);
+}
+
+.btn-red{
+    background:var(--red);
+    padding: 8px 12px;
+    width: auto;
+    border-radius: 8px;
+}
+
+.metrics{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:16px;
+    margin-bottom:24px;
+}
+
+.metric{
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:20px;
+}
+
+.metric p{
+    font-size:2rem;
+    font-weight:800;
+    margin-bottom:8px;
+    color:var(--green);
+}
+
+.metric span{
+    color:var(--muted);
+}
+
+.level{
+    margin-bottom:24px;
+    background:linear-gradient(135deg, #172554, #0f172a);
+    border-radius:18px;
+    padding:20px;
+}
+
+.level p{
+    color:var(--green);
+    margin-top:10px;
+    font-size:1.6rem;
+    font-weight:800;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:16px;
+}
+
+.card{
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:18px;
+    transition:.2s;
+}
+
+.card:hover{
+    transform:translateY(-4px);
+}
+
+.badge{
+    display:inline-flex;
+    padding:8px 12px;
+    border-radius:999px;
+    font-size:.75rem;
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+.badge-oleo{ background:rgba(59,130,246,.15); color:#93c5fd; }
+.badge-eletronicos{ background:rgba(139,92,246,.15); color:#d8b4fe; }
+.badge-pilhas{ background:rgba(245,158,11,.15); color:#fde68a; }
+.badge-plastico{ background:rgba(16,185,129,.15); color:#6ee7b7; }
+.badge-vidro{ background:rgba(236,72,153,.15); color:#f9a8d4; }
+.badge-papel{ background:rgba(255,255,255,.1); color:#f8fafc; }
+
+.tasks{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.task{
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--border);
+    padding:14px;
+    border-radius:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+td,th{
+    padding:14px;
+    border-top:1px solid var(--border);
+    text-align: left;
+}
+
+.toast{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:#10b981;
+    color:white;
+    padding:16px 22px;
+    border-radius:14px;
+    z-index:9999;
+    animation:fade .3s;
+}
+
+@keyframes fade{
+    from{ opacity:0; transform:translateY(-20px); }
+    to{ opacity:1; transform:translateY(0); }
+}
+
+.footer{
+    margin-top:30px;
+    text-align:center;
+    color:var(--muted);
+}
+
+#mapa{
+    height:400px;
+    border-radius:18px;
+    z-index: 1;
+}
+
+canvas{
+    max-height:350px;
+}
+
+.progress{
+    width:100%;
+    height:10px;
+    border-radius:999px;
+    background:#1e293b;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+.progress div{
+    height:100%;
+    background:linear-gradient(90deg, var(--green), var(--blue));
+}
+
+.chat{
+    display:flex;
+    gap:10px;
+}
+
+.chat input{
+    flex:1;
+}
+
+.chat-response{
+    margin-top:14px;
+    color:var(--muted);
+    line-height:1.6;
+}
+
+.streak{
+    font-size:1.2rem;
+    font-weight:800;
+    color:orange;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">
+        <div class="logo-icon">♻️</div>
+        <div>
+            <h1>DescartsPerfect PRO ULTRA MAX</h1>
+            <p>Sistema Inteligente Ambiental</p>
+        </div>
+    </div>
+    <button onclick="toggleTheme()" style="width: auto; padding: 10px 20px;">🌙 Alternar Tema</button>
+</div>
+
+<div class="layout">
+
+    <!-- LEFT COLUMN -->
+    <div>
+        <div class="panel">
+            <h2>📝 Registrar Descarte</h2>
+            <form id="formLog">
+                <div class="form-group">
+                    <label>Material</label>
+                    <select id="logMaterial">
+                        <option value="oleo">Óleo</option>
+                        <option value="eletronicos">Eletrônicos</option>
+                        <option value="pilhas">Pilhas</option>
+                        <option value="plastico">Plástico</option>
+                        <option value="vidro">Vidro</option>
+                        <option value="papel">Papel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" step="0.1" id="logQuantidade" required>
+                </div>
+                <button type="submit">Registrar</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>📍 Novo Ecoponto</h2>
+            <form id="formEcoponto">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="ecoNome" required>
+                </div>
+                <div class="form-group">
+                    <label>Material Principal</label>
+                    <select id="ecoMaterial">
+                        <option value="oleo">Óleo</option>
+                        <option value="eletronicos">Eletrônicos</option>
+                        <option value="pilhas">Pilhas</option>
+                        <option value="plastico">Plástico</option>
+                        <option value="vidro">Vidro</option>
+                        <option value="papel">Papel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Endereço</label>
+                    <input type="text" id="ecoEndereco" required>
+                </div>
+                <div class="form-group">
+                    <label>Cidade</label>
+                    <input type="text" id="ecoCidade" required>
+                </div>
+                <button type="submit" class="btn-blue">Adicionar</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>🎯 Metas</h2>
+            <div id="tasks" class="tasks"></div>
+        </div>
+
+        <div class="panel">
+            <h2>🏆 Conquistas</h2>
+            <div id="conquistas"></div>
+        </div>
+
+        <div class="panel">
+            <h2>🔥 Streak Ambiental</h2>
+            <div class="streak" id="streakBox">🔥 0 dias</div>
+        </div>
+
+        <div class="panel">
+            <h2>💡 Dica Inteligente</h2>
+            <div id="dicaEco"></div>
+        </div>
+
+        <div class="panel">
+            <h2>🤖 EcoBot</h2>
+            <div class="chat">
+                <input type="text" id="chatInput" placeholder="Pergunte algo...">
+                <button onclick="responderBot()" style="width: auto;">Enviar</button>
+            </div>
+            <div class="chat-response" id="chatResponse"></div>
+        </div>
+
+        <div class="panel">
+            <h2>📄 Exportar</h2>
+            <button onclick="baixarRelatorio()">Baixar Relatório</button>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+        <div class="panel">
+            <h2>🌎 Dashboard Ambiental</h2>
+            <div class="metrics">
+                <div class="metric">
+                    <p id="metaAgua">0L</p>
+                    <span>Água Preservada</span>
+                </div>
+                <div class="metric">
+                    <p id="metaSolo">0m²</p>
+                    <span>Solo Protegido</span>
+                </div>
+                <div class="metric">
+                    <p id="metaCo2">0kg</p>
+                    <span>CO₂ Evitado</span>
+                </div>
+                <div class="metric">
+                    <p id="metaItens">0</p>
+                    <span>Total de Descartes</span>
+                </div>
+            </div>
+
+            <div class="level">
+                <h3>🏆 Ranking</h3>
+                <p id="nivelEco">🌱 Iniciante</p>
+                <div class="progress">
+                    <div id="xpBar" style="width:0%"></div>
+                </div>
+            </div>
+
+            <h2>📈 Gráfico de Impacto</h2>
+            <canvas id="graficoImpacto"></canvas>
+
+            <h2 style="margin-top:30px;">📊 Histórico de Descartes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Material</th>
+                        <th>Qtd</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaHistorico"></tbody>
+            </table>
+        </div>
+
+        <div class="panel">
+            <h2>🌤️ Clima Atual (Fortaleza)</h2>
+            <div id="weatherBox">Carregando...</div>
+        </div>
+
+        <div class="panel">
+            <h2>🔎 Buscar Ecopontos</h2>
+            <div class="form-group">
+                <label>Filtrar por Cidade</label>
+                <input type="text" id="filtroCidade" placeholder="Digite a cidade...">
+            </div>
+            <div class="form-group">
+                <label>Filtrar por Material</label>
+                <select id="filtroMaterial">
+                    <option value="todos">Todos os materiais</option>
+                    <option value="oleo">Óleo</option>
+                    <option value="eletronicos">Eletrônicos</option>
+                    <option value="pilhas">Pilhas</option>
+                    <option value="plastico">Plástico</option>
+                    <option value="vidro">Vidro</option>
+                    <option value="papel">Papel</option>
+                </select>
+            </div>
+            <div class="cards" id="containerEcopontos"></div>
+        </div>
+
+        <div class="panel">
+            <h2>🗺️ Mapa Ambiental</h2>
+            <div id="mapa"></div>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    DescartsPerfect PRO ULTRA MAX © 2026
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+/* DATABASE INIT */
+let ecopontos = JSON.parse(localStorage.getItem("ecopontos")) || [
+    { nome: "Eco Central", material: "eletronicos", endereco: "Av. Principal", cidade: "Fortaleza", lat: -3.7319, lng: -38.5267 },
+    { nome: "Mercado Verde", material: "oleo", endereco: "Rua Verde", cidade: "Fortaleza", lat: -3.75, lng: -38.52 }
+];
+
+let historico = JSON.parse(localStorage.getItem("historico")) || [];
+
+let mapa;
+let grafico;
+
+/* DOM LOAD */
+document.addEventListener("DOMContentLoaded", () => {
+    renderizarEcopontos();
+    atualizarPainel();
+    gerarDica();
+    carregarClima();
+    iniciarMapa();
+    inicializarStreak();
+});
+
+/* FORMAT MATERIAL NAMES */
+function materialFormatado(tipo) {
+    const nomes = {
+        oleo: "🛢️ Óleo",
+        eletronicos: "💻 Eletrônicos",
+        pilhas: "🔋 Pilhas",
+        plastico: "🧴 Plástico",
+        vidro: "🍾 Vidro",
+        papel: "📄 Papel"
+    };
+    return nomes[tipo] || tipo;
+}
+
+/* FEEDBACK TOAST */
+function toast(msg) {
+    const div = document.createElement("div");
+    div.className = "toast";
+    div.innerText = msg;
+    document.body.appendChild(div);
+    setTimeout(() => { div.remove(); }, 3000);
+}
+
+/* SOUND EFFECTS */
+function tocarSom() {
+    const audio = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
+    audio.play().catch(() => {}); // Previne erros caso o navegador bloqueie áudio automático
+}
+
+/* THEME TOGGLE */
+function toggleTheme() {
+    document.body.classList.toggle("light");
+}
+
+/* RENDER ECOPOINTS CARDS */
+function renderizarEcopontos() {
+    const cidade = filtroCidade.value.toLowerCase();
+    const material = filtroMaterial.value;
+
+    containerEcopontos.innerHTML = "";
+
+    const filtrados = ecopontos.filter(item => {
+        const cidadeOk = item.cidade.toLowerCase().includes(cidade);
+        const materialOk = material === "todos" || item.material === material;
+        return cidadeOk && materialOk;
+    });
+
+    if(filtrados.length === 0) {
+        containerEcopontos.innerHTML = "<p style='color: var(--muted);'>Nenhum ecoponto encontrado.</p>";
+        return;
+    }
+
+    filtrados.forEach(item => {
+        containerEcopontos.innerHTML += `
+        <div class="card">
+            <div class="badge badge-${item.material}">
+                ${materialFormatado(item.material)}
+            </div>
+            <h3>${item.nome}</h3>
+            <p style="margin-top: 8px;">📍 ${item.endereco}</p>
+            <p style="color: var(--muted);">🏙️ ${item.cidade}</p>
+        </div>
+        `;
+    });
+}
+
+/* SUBMIT NEW ECOPOINT */
+formEcoponto.addEventListener("submit", e => {
+    e.preventDefault();
+
+    // Adiciona coordenadas com variação aleatória perto do centro base para espalhar no mapa
+    const baseLat = -3.7319;
+    const baseLng = -38.5267;
+
+    ecopontos.push({
+        nome: ecoNome.value,
+        material: ecoMaterial.value,
+        endereco: ecoEndereco.value,
+        cidade: ecoCidade.value,
+        lat: baseLat + (Math.random() - 0.5) * 0.1,
+        lng: baseLng + (Math.random() - 0.5) * 0.1
+    });
+
+    localStorage.setItem("ecopontos", JSON.stringify(ecopontos));
+    toast("📍 Ecoponto adicionado com sucesso!");
+    renderizarEcopontos();
+    iniciarMapa();
+    e.target.reset();
+});
+
+/* SUBMIT NEW DISPOSAL LOG */
+formLog.addEventListener("submit", e => {
+    e.preventDefault();
+
+    historico.push({
+        id: Date.now(),
+        data: new Date().toLocaleString("pt-BR"),
+        material: logMaterial.value,
+        quantidade: parseFloat(logQuantidade.value)
+    });
+
+    localStorage.setItem("historico", JSON.stringify(historico));
+    navigator.vibrate?.(100);
+    tocarSom();
+    toast("♻️ Descarte registrado!");
+    atualizarPainel();
+    computarStreak();
+    e.target.reset();
+});
+
+/* DELETE DISPOSAL REGISTRY */
+function deletarRegistro(id) {
+    historico = historico.filter(item => item.id !== id);
+    localStorage.setItem("historico", JSON.stringify(historico));
+    toast("❌ Registro removido!");
+    atualizarPainel();
+}
+
+/* CALCULATE GAMIFICATION LEVEL */
+function atualizarNivel(score) {
+    let nivel = "🌱 Iniciante";
+    if (score > 200) nivel = "🌿 Consciente";
+    if (score > 500) nivel = "♻️ Sustentável";
+    if (score > 1000) nivel = "🌎 Eco Hero";
+    if (score > 3000) nivel = "🚀 Guardião do Planeta";
+
+    nivelEco.innerText = nivel;
+    xpBar.style.width = Math.min(score / 30, 100) + "%";
+}
+
+/* CHART MANAGEMENT */
+function atualizarGrafico() {
+    const materiais = { oleo: 0, eletronicos: 0, pilhas: 0, plastico: 0, vidro: 0, papel: 0 };
+    historico.forEach(item => { if(materiais[item.material] !== undefined) materiais[item.material] += item.quantidade; });
+
+    const ctx = document.getElementById("graficoImpacto").getContext("2d");
+    if (grafico) grafico.destroy();
+
+    grafico = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Óleo", "Eletrônicos", "Pilhas", "Plástico", "Vidro", "Papel"],
+            datasets: [{
+                label: "Quantidade Descartada",
+                data: Object.values(materiais),
+                backgroundColor: ["#3b82f6", "#8b5cf6", "#f59e0b", "#10b981", "#ec4899", "#94a3b8"]
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
+/* REFRESH DASHBOARD PANEL & CALCULATE METRICS */
+function atualizarPainel() {
+    tabelaHistorico.innerHTML = "";
+    let agua = 0, solo = 0, co2 = 0;
+
+    historico.forEach(item => {
+        tabelaHistorico.innerHTML += `
+        <tr>
+            <td>${item.data.split(" ")[0]}</td>
+            <td><div class="badge badge-${item.material}">${materialFormatado(item.material)}</div></td>
+            <td>${item.quantidade}</td>
+            <td><button class="btn-red" onclick="deletarRegistro(${item.id})">❌</button></td>
+        </tr>`;
+
+        if (item.material === "oleo") agua += item.quantidade * 25000;
+        if (item.material === "pilhas") solo += item.quantidade * 2;
+        if (item.material === "eletronicos") co2 += item.quantidade * 2.5;
+        if (item.material === "plastico") co2 += item.quantidade * 1.8;
+    });
+
+    metaAgua.innerText = agua.toLocaleString("pt-BR") + "L";
+    metaSolo.innerText = solo.toLocaleString("pt-BR") + "m²";
+    metaCo2.innerText = co2.toFixed(1) + "kg";
+    metaItens.innerText = historico.length;
+
+    atualizarNivel((agua / 1000) + solo + co2);
+    atualizarGrafico();
+    renderizarMetas(co2);
+    renderizarConquistas(co2);
+}
+
+/* RENDER TARGETS */
+function renderizarMetas(co2Atual = 0) {
+    const total = historico.length;
+    tasks.innerHTML = `
+    <div class="task"><div>Registrar 5 descartes</div><div>${total}/5</div></div>
+    <div class="task"><div>Registrar 20 descartes</div><div>${total}/20</div></div>
+    <div class="task"><div>Salvar 100kg CO₂</div><div>${parseInt(co2Atual)}/100</div></div>`;
+}
+
+/* RENDER ACHIEVEMENTS */
+function renderizarConquistas(co2Atual = 0) {
+    const lista = [];
+    const total = historico.length;
+
+    if (total >= 5) lista.push("🌱 Primeiros Passos");
+    if (total >= 20) lista.push("♻️ Reciclador Profissional");
+    if (co2Atual >= 100) lista.push("🌍 Salvador do Clima");
+    if (lista.length === 0) lista.push("Nenhuma conquista ainda");
+
+    conquistas.innerHTML = lista.map(item => `<div class="task">${item}</div>`).join("");
+}
+
+/* ECO TIPS ACCORDION */
+function gerarDica() {
+    const dicas = [
+        "Use garrafas reutilizáveis.", "Evite plástico descartável.",
+        "Economize água diariamente.", "Recicle eletrônicos antigos.",
+        "Use energia solar sempre que possível.", "Prefira caminhar ou usar bicicleta."
+    ];
+    dicaEco.innerHTML = `<div class="task">🌱 Dica: ${dicas[Math.floor(Math.random() * dicas.length)]}</div>`;
+}
+
+/* WEATHER API CONSUMPTION */
+async function carregarClima() {
+    try {
+        const resposta = await fetch("https://wttr.in/Fortaleza?format=j1");
+        const dados = await resposta.json();
+        const clima = dados.current_condition[0];
+        weatherBox.innerHTML = `
+        <div class="task">
+            <div>
+                <h2>${clima.temp_C}°C</h2>
+                <p>Umidade: ${clima.humidity}%</p>
+                <p>Vento: ${clima.windspeedKmph} km/h</p>
+            </div>
+        </div>`;
+    } catch {
+        weatherBox.innerHTML = "<div class='task'>⚠️ Erro ao carregar informações do clima.</div>";
+    }
+}
+
+/* MAP RENDER & MARKERS */
+function iniciarMapa() {
+    if (mapa) mapa.remove();
+
+    mapa = L.map("mapa").setView([-3.7319, -38.5267], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(mapa);
+
+    ecopontos.forEach(item => {
+        L.marker([item.lat, item.lng])
+        .addTo(mapa)
+        .bindPopup(`<strong>${item.nome}</strong><br>${item.endereco}<br>🏙️ ${item.cidade}<br>📦 Recebe: ${materialFormatado(item.material)}`);
+    });
+}
+
+/* EXPORT SYSTEM LOG TO .TXT */
+function baixarRelatorio() {
+    let texto = "RELATÓRIO AMBIENTAL - DESCARTSPERFECT\n====================================\n\n";
+    historico.forEach(item => {
+        texto += `Data: ${item.data} | Material: ${materialFormatado(item.material)} | Qtd: ${item.quantidade}\n`;
+    });
+
+    const blob = new Blob([texto], { type: "text/plain;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "relatorio_ambiental.txt";
+    a.click();
+}
+
+/* STREAK MANAGEMENT SYSTEM */
+function inicializarStreak() {
+    let streak = parseInt(localStorage.getItem("streak")) || 0;
+    let ultimaData = localStorage.getItem("ultimaData");
+    let hoje = new Date().toDateString();
+
+    if (ultimaData) {
+        let ontem = new Date();
+        ontem.setDate(ontem.getDate() - 1);
+        
+        // Se quebrou a sequência (passou mais de 1 dia do último registro)
+        if (ultimaData !== hoje && ultimaData !== ontem.toDateString()) {
+            streak = 0;
+            localStorage.setItem("streak", 0);
+        }
+    }
+    streakBox.innerText = `🔥 ${streak} dias`;
+}
+
+function computarStreak() {
+    let streak = parseInt(localStorage.getItem("streak")) || 0;
+    let ultimaData = localStorage.getItem("ultimaData");
+    let hoje = new Date().toDateString();
+
+    if (ultimaData !== hoje) {
+        streak++;
+        localStorage.setItem("streak", streak);
+        localStorage.setItem("ultimaData", hoje);
+    }
+    streakBox.innerText = `🔥 ${streak} dias`;
+}
+
+/* AI ECOBOT DIALOGUE ENGINE */
+function responderBot() {
+    const pergunta = chatInput.value.toLowerCase();
+    let resposta = "🤖 Não entendi sua pergunta. Tente perguntar sobre óleo, pilhas, plástico, vidro ou como reciclar!";
+
+    if (pergunta.includes("pilha")) resposta = "🔋 Pilhas devem ser descartadas exclusivamente em ecopontos eletrônicos para não contaminar o solo.";
+    if (pergunta.includes("óleo") || pergunta.includes("oleo")) resposta = "🛢️ Nunca jogue óleo na pia ou no ralo! Um único litro polui milhares de litros de água. Separe em garrafa PET e leve a um ecoponto.";
+    if (pergunta.includes("plastico") || pergunta.includes("plástico")) resposta = "🧴 O plástico reciclável deve estar limpo e seco. Lave rapidamente embalagens antes de descartar.";
+    if (pergunta.includes("vidro")) resposta = "🍾 Vidros quebrados devem ser embalados com segurança em caixas ou garrafas pet cortadas para evitar acidentes com os coletores.";
+    if (pergunta.includes("papel")) resposta = "📄 Papéis limpos e secos são recicláveis. Evite molhar ou misturar com restos de comida.";
+    if (pergunta.includes("reciclar")) resposta = "♻️ A regra de ouro é: separe sempre os resíduos secos (recicláveis) dos úmidos (orgânicos e rejeitos).";
+
+    chatResponse.innerHTML = `<div class="task" style="display:block;">${resposta}</div>`;
+}
+
+/* LIVE FILTERS LISTENERS */
+filtroCidade.addEventListener("input", renderizarEcopontos);
+filtroMaterial.addEventListener("change", renderizarEcopontos);
+</script>
+
+</body>
+</html>
